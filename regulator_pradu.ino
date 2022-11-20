@@ -163,6 +163,7 @@ int upDown(int var) {
   return var;
 }
 
+// Checking if switch in encoder are still pressed or relased
 int checkIfRelased() {
   while (true) {
     if (digitalRead(sw) == 1) {
@@ -171,6 +172,7 @@ int checkIfRelased() {
   }
 }
 
+// Measure time 1s but at the moment i don't know why
 int measureTime() {
   if (millis() >= mTime) {
     mTime = mTime + 1000UL;
@@ -181,6 +183,7 @@ int measureTime() {
   }
 }
 
+// Draw box on the screen with yes or no decision
 int confirm(bool var = 0) {
   bool c = 0;
 
@@ -226,24 +229,27 @@ int confirm(bool var = 0) {
   }
 }
 
+// Main loop
 void loop() {
   static bool chec = 0;
-  chec = isChange();
+  chec = isChange();                    // Really don't know why i assign 
+                                        // status this funktion to variable
   if (chec == true) {
     menuItem = upDown(menuItem);
-    if (menuItem == 0 or menuItem >= 3) {
-      menuItem = 1;
+    if (menuItem == 0 or menuItem >= 3) {     // If menu item overload back 
+      menuItem = 1;                           // to first position
     }
     drawMenu();
     chec = 0;
   }
 
-  if (digitalRead(sw) == 0) {
-    chooseItem();
-    drawMenu();
-  }
+  if (digitalRead(sw) == 0) {           // Chose item on screen
+    chooseItem();                       // and execute selecting function 
+    drawMenu();                         // This probably didn't execute 
+  }                                     // but who knows
 }
 
+// Chose which element of menu are execute
 void chooseItem() {
   Serial.println("Chose item");
   //  static bool lastbt = 1;
@@ -258,6 +264,7 @@ void chooseItem() {
   }
 }
 
+// For later 
 void settings() {
   display.clearDisplay();
   display.print("Nie wiem co robie");
@@ -265,14 +272,15 @@ void settings() {
   delay(5000);
 }
 
+// Below named charge in fact it regulates current
 void charge() {
-  bool a = 1;
-  byte sTime = 10;
-  byte s = 0, m = 0, h = 0;
-  byte valKey = 255;
-  byte setAmpAn = 0;
-  int readAnal = 0;                 // analogRead(lpAnalPin);
-  float rlAmp  = 0;                 //readAnal * (10 / 1023);
+  bool a = 1;                       // for while loop
+  byte sTime = 10;                  // ¯\_(ツ)_/¯
+  byte s = 0, m = 0, h = 0;         // time variable
+  byte valKey = 255;                // ¯\_(ツ)_/¯
+  byte setAmpAn = 0;                // set value of current
+  int readAnal = 0;                 // read analog value (analogRead(lpAnalPin);
+  float rlAmp  = 0;                 // real current value readAnal * (10 / 1023);
 
   setAmpAn = setCharge(setAmpAn);
 //  Serial.println("setAmpDt i setAmpAn ");
