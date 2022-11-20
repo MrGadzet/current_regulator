@@ -1,29 +1,37 @@
 /*********************************************************************
 
-   Regulator prądu v.0.1
+   Current regulator v.0.1
 
-   Program do sterowania prądem. W przyszłosci także napięciem.
-   Wbudowana funckja regulatora prądu.
-
-   W planach: regulator napięcia, ładowarka Pb, łądowarka li-ion,
-   odsiarczanie aku Pb, regeneracji aku Pb, wbudowany timer ładowania,
-   tester akumulatorów
+   Current regulator in version pre-alpha. In the future i want 
+   to make voltage and power regulator, charger Pb, Li-ion, limiter 
+   chanrging, desulphation and regeneration Pb aku, tester any type
+   of aku
    
-*********************************************************************/
-
-/*********************************************************************
-
-   Do zrobienia:
-
-   -zwiększenie f PWM
-   -zwiększenie precyzji nastawy prądu
-   -możliwość nastawy czasu pracy
-   -dodanie funkcji kalibracji
-   -dodanie ustawień:
-      ~precyzja odczytu
-      ~precyzja nastaw
-   -odczyt temp
-   -rejestrowanie danych
+**********************************************************************
+ *
+ *  This program is working witch electronic adapter based on opamp 
+ *  LM358N. His job is amplify signal of electrical shunt wchich is
+ *  built with 6x 0,03Ohm resistors connected parallel.
+ *  I used both available amplifier in LM358N. Both has diffrent 
+ *  degrees of amplification. One for low cuffent flow, second 
+ *  for bigger one up to 20A.
+ *  
+ *  I don't make any scheme of this becouse "Well, i will remember".
+ *  and half a year later I'm fully of hope that will works without 
+ *  any eksplosion.
+ *  
+**********************************************************************
+   
+   To do list:
+   -increase fq od PWM
+   -increase precision current regulation 
+   -work time limiter
+   -ading kalibration function
+   -adding settings:
+      -reading precision
+      -settings precision 
+   -reading temperature of battery and radiator of regulator
+   -logging data on SD card or something like this
    
 *********************************************************************/
 
@@ -43,26 +51,28 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(13, 11, 6, 5, 4);
 // Note with hardware SPI MISO and SS pins aren't used but will still be read
 // and written to during SPI transfer.  Be careful sharing these pins!
 
-const byte clk = 2;
-const byte dt = 3;
-const byte sw = 8;
-const int lpAnalPin = A0;
-const int mpAnalPin = A1;
-const byte key = 9;
 
-bool backlight = 0;
-bool bt = 1;
 
-byte menuItem = 1;
-byte page = 1;
-byte contrast = 50;
+const byte clk = 2;             // Don't rember what is it
+const byte dt = 3;              // same, maybe i can remember later
+const byte sw = 8;              // same as up
+const int lpAnalPin = A0;       // Less precision analog Pin 
+const int mpAnalPin = A1;       // More precision analog Pin
+const byte key = 9;             
 
-int counter = 1;
-int impulse = 1;
-int setAmpDt = 0;
+bool backlight = 0;             // Variable for backlight in display, probably it's connected permanently
+bool bt = 1;                    
 
-unsigned long mTime = 0;
-unsigned long time = 0;
+byte menuItem = 1;              // This variable allow change row in menu
+byte page = 1;                  // Allow to change page of menu if it doesn't fit on one
+byte contrast = 50;             // Change dosplay contrast. It doesn't work, but without display doesn't display
+
+int counter = 1;                // It's probably counter for encoder
+int impulse = 1;                // It's for correct service of encoder in menu
+int setAmpDt = 0;               // It could be anything
+
+unsigned long mTime = 0;        // Variable for timers and interrupts
+unsigned long time = 0;         // Same up
 
 void setup() {
   Serial.begin(9600);
@@ -91,6 +101,7 @@ void setup() {
 
   // you can change the contrast around to adapt the display
   // for the best viewing!
+  // but for some reason it doesn't work
   display.setContrast(contrast);
   display.clearDisplay();
 
@@ -108,6 +119,8 @@ void setup() {
 
 }
 
+// Funktions blinkA and blinkB are for debouncing and add and substract
+// pulses from encoder 
 void blinkA() {
   if ((millis() - time) > 5)
     counter++;
@@ -120,6 +133,8 @@ void blinkB() {
   time = millis();
 }
 
+// Something didn't work without this and this was something with encoder
+// so i write it here and sometimes use it.
 int isChange() {
   if (impulse != counter) {
     return true;
@@ -129,6 +144,7 @@ int isChange() {
   }
 }
 
+// This funktion distinguishes directions rotary encoder
 int upDown(int var) {
   if (impulse > counter) {
     impulse = counter;
