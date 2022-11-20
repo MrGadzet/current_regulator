@@ -173,6 +173,7 @@ int checkIfRelased() {
 }
 
 // Measure time 1s but at the moment i don't know why
+// Now i know. It measures time for display timer
 int measureTime() {
   if (millis() >= mTime) {
     mTime = mTime + 1000UL;
@@ -276,7 +277,7 @@ void settings() {
 void charge() {
   bool a = 1;                       // for while loop
   byte sTime = 10;                  // ¯\_(ツ)_/¯
-  byte s = 0, m = 0, h = 0;         // time variable
+  byte s = 0, m = 0, h = 0;         // variables for timer
   byte valKey = 255;                // ¯\_(ツ)_/¯
   byte setAmpAn = 0;                // set value of current
   int readAnal = 0;                 // read analog value (analogRead(lpAnalPin);
